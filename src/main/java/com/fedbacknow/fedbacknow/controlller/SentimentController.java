@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SentimentController {
 
     @PostMapping
-    public void create(@RequestBody SentimentRequestDTO dados){
+    public void createSentiment(@RequestBody SentimentRequestDTO dados){
         System.out.println(dados);
 
     }
