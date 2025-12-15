@@ -19,14 +19,17 @@ public class Sentiment {
     private Long id;
     private String text;
     @Column(name = "productname")
-    private String product;
+    private String productName;
+
+    @Enumerated(EnumType.STRING)
+    private SentimentType sentiment;
 
     @CreationTimestamp
     private LocalDateTime createdAt;
 
     public Sentiment(SentimentRequestDTO dados){
         this.text = dados.text();
-        this.product = dados.productName();
+        this.productName = dados.productName();
     }
 
 }
