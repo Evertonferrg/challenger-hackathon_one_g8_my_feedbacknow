@@ -23,4 +23,15 @@ public class SentimentService {
                 .map(SentimentResponseDTO::new)
                 .collect(Collectors.toList());
     }
+
+    public String analyze(String text){
+        if (text.toLowerCase().contains("péssimo")){
+            return "NEGATIVE";
+        }
+
+        if (text.toLowerCase().contains("excelente")){
+            return "POSITIVE";
+        }
+        return  "NEUTRAL";
+    }
 }
