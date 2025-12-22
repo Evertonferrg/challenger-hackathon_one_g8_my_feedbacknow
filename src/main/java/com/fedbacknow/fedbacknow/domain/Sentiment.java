@@ -17,7 +17,9 @@ public class Sentiment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String text;
+
     @Column(name = "productname")
     private String productName;
 
@@ -27,9 +29,21 @@ public class Sentiment {
     @CreationTimestamp
     private LocalDateTime createdAt;
 
-    public Sentiment(SentimentRequestDTO dados){
-        this.text = dados.text();
-        this.productName = dados.productName();
+    // 🔹 OBRIGATÓRIO para JPA
+    protected Sentiment() {
     }
 
+    // 🔹 Usado pelo fluxo ONNX
+    public Sentiment(String text, String productName, SentimentType sentiment) {
+        this.text = text;
+        this.productName = productName;
+        this.sentiment = sentiment;
+    }
+
+    // 🔹 Opcional (se quiser manter criação direta do DTO)
+    public Sentiment(SentimentRequestDTO dados, SentimentType sentiment) {
+        this.text = dados.text();
+        this.productName = dados.productName();
+        this.sentiment = sentiment;
+    }
 }

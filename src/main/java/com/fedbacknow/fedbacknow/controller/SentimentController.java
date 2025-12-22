@@ -1,41 +1,44 @@
 package com.fedbacknow.fedbacknow.controller;
-
-import com.fedbacknow.fedbacknow.domain.Sentiment;
+import com.fedbacknow.fedbacknow.domain.SentimentType;
 import com.fedbacknow.fedbacknow.dto.SentimentRequestDTO;
 import com.fedbacknow.fedbacknow.dto.SentimentResponseDTO;
-import com.fedbacknow.fedbacknow.repository.SentimentRepository;
+import com.fedbacknow.fedbacknow.service.SentimentAnalysisService; // Nome CORRETO
 import com.fedbacknow.fedbacknow.service.SentimentService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDateTime;
+
+import java.time.LocalDateTime;
 
 @RestController
 @RequestMapping("/sentiment")
 public class SentimentController {
 
-    @Autowired
-    private SentimentRepository repository;
+    private final SentimentAnalysisService service;
+    private long idCounter = 1000L; // Use primitivo 'long' em vez de AtomicLong
 
-    @Autowired
-    private SentimentService service;
-
-    @PostMapping
-    @Transactional
-    public void createSentiment(@RequestBody @Valid SentimentRequestDTO dados){
-        repository.save(new Sentiment(dados));
+    public SentimentController(SentimentAnalysisService service) {
+        this.service = service;
     }
 
+    @PostMapping("/analyze")
+    public SentimentResponseDTO analyze(@Valid @RequestBody SentimentRequestDTO request) {
+        SentimentType sentiment = service.analyzeSentiment(request.text());
 
-    @GetMapping
-    public ResponseEntity<Page<SentimentResponseDTO>> list(Pageable paginacao){
-        Page<Sentiment> page = repository.findAll(paginacao);
-        Page<SentimentResponseDTO> dtoPage = page.map(SentimentResponseDTO::new);
-        return ResponseEntity.ok(dtoPage);
+        // Incrementa o contador
+        long generatedId = idCounter++;
+
+        // Se precisar de AtomicLong por thread safety:
+        // private final AtomicLong idCounter = new AtomicLong(1000L);
+        // long generatedId = idCounter.getAndIncrement();
+
+        return new SentimentResponseDTO(
+                generatedId,          // long primitivo (ok para Long no record)
+                request.text(),
+                request.productName(),
+                sentiment,
+                LocalDateTime.now()
+        );
     }
 }
